@@ -1,0 +1,504 @@
+--unele tabele au fost create pe baza altor tabele care erau deja existente
+CREATE TABLE AdministratorProj
+(id_admin number(7) constraint p_admin PRIMARY KEY,
+nume varchar2(30) NOT NULL,
+prenume varchar2(30) NOT NULL,
+telefon varchar2(10)
+);
+
+CREATE TABLE InventarProj
+(id_produs number(8) constraint p_produs PRIMARY KEY,
+nr_depozit number(5) NOT NULL,
+cantitate number(5) NOT NULL,
+id_admin number(7),
+constraint f_admin1 FOREIGN KEY (id_admin) REFERENCES AdministratorProj (id_admin)
+);
+
+--adminul din  inventar este cel care a introdus codul in tabela
+
+CREATE TABLE DepozitProj
+(nr_depozit number(5) NOT NULL,
+id_produs number(8),
+constraint f_produs FOREIGN KEY (id_produs) REFERENCES InventarProj (id_produs),
+locatie_dep varchar2(30),
+stoc_initial number(10)
+);
+
+CREATE TABLE ProduseProj
+(id_produs number(8),
+constraint f_produs2 FOREIGN KEY (id_produs) REFERENCES InventarProj (id_produs),
+denumire_produs varchar2(30),
+descriere varchar2(100),
+pret number(8)
+);
+
+CREATE TABLE ComenziProj
+(cod_comanda number(10) constraint p_comanda PRIMARY KEY,
+id_admin number(7),
+constraint f_admin2 FOREIGN KEY (id_admin) REFERENCES AdministratorProj (id_admin),
+data_intrare varchar2(25),
+cantitate_comandata number(5),
+adresa_expediere varchar2(50),
+data_expediere varchar2(25)
+);
+
+CREATE TABLE AgentiProj
+(id_agent number(7) constraint p_agent PRIMARY KEY,
+nr_factura number(7),
+denumire_produs varchar2(30)
+);
+
+
+CREATE TABLE FacturareProj
+(id_admin number(7),
+constraint f_admin4 FOREIGN KEY (id_admin) REFERENCES AdministratorProj (id_admin),
+nr_factura number(7),
+id_agent number(7),
+constraint f_admin3 FOREIGN KEY (id_agent) REFERENCES AgentiProj (id_agent),
+suma_plata number(8),
+data_scadenta varchar2(30)
+);
+
+--10 administratori
+--20 agenti
+--produse iau din produse(laptopuri si televizoare) sau ma gandesc (feluri de paine)
+--etc
+
+--1.
+ALTER TABLE AdministratorProj ADD email varchar2(40);
+
+DESC AdministratorProj;
+
+--2.
+ALTER TABLE AdministratorProj ADD constraint e1 CHECK (REGEXP_LIKE(email, '.+@.+\..+'));
+
+--3.
+ALTER TABLE AdministratorProj ADD constraint t1 CHECK (LENGTH(telefon)=10);
+
+--4.
+ALTER TABLE AdministratorProj disable constraint t1;
+
+--5.
+ALTER TABLE AdministratorProj ADD constraint tel_unic UNIQUE (telefon);
+
+--6.
+ALTER TABLE AdministratorProj DROP constraint tel_unic;
+
+--7.
+ALTER TABLE AdministratorProj DROP constraint e1;
+
+--8.
+ALTER TABLE AdministratorProj MODIFY telefon varchar2(12);
+
+--9.
+ALTER TABLE ProduseProj MODIFY descriere varchar2(350);
+
+--10.
+ALTER TABLE ComenziProj ADD id_produs number(7);
+
+--11.
+DROP TABLE ProduseProj
+FLASHBACK TABLE ProduseProj TO BEFORE DROP;
+
+--COMENZI INSERT UPDATE DELETE MERGE(opt) - 10 com
+
+--1.
+INSERT INTO AdministratorProj (id_admin,nume,prenume,telefon,email)
+VALUES (1,'Sima','Cristina-Elena','0720345678','simacris@gmail.com');
+
+--2.
+INSERT INTO AdministratorProj (id_admin,nume,prenume,email,telefon)
+SELECT id_angajat,nume,prenume,email,telefon
+FROM Salariati
+WHERE id_angajat > 1 AND ROWNUM <=9;
+
+--3.
+--Realizam o secventa(SEQUENCE) pentru a popula nr_depozit cu valori
+
+CREATE SEQUENCE sequence_1
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1
+MAXVALUE 50
+NOCYCLE;
+
+--4.
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1000,sequence_1.nextval,30);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1001,sequence_1.nextval,36);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1002,sequence_1.nextval,52);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1003,sequence_1.nextval,21);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1004,sequence_1.nextval,47);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1005,sequence_1.nextval,15);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1006,sequence_1.nextval,74);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1007,sequence_1.nextval,8);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1008,sequence_1.nextval,68);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1009,sequence_1.nextval,47);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate)
+VALUES(1010,sequence_1.nextval,24);
+
+--5.
+UPDATE InventarProj
+SET id_admin = 115
+WHERE id_produs = 1002;
+
+UPDATE InventarProj
+SET id_admin = 116
+WHERE id_produs = 1003;
+
+UPDATE InventarProj
+SET id_admin = 117
+WHERE id_produs = 1004;
+
+UPDATE InventarProj
+SET id_admin = 118
+WHERE id_produs = 1005;
+
+UPDATE InventarProj
+SET id_admin = 119
+WHERE id_produs = 1006;
+
+UPDATE InventarProj
+SET id_admin = 120
+WHERE id_produs = 1007;
+
+UPDATE InventarProj
+SET id_admin = 121
+WHERE id_produs = 1008;
+
+UPDATE InventarProj
+SET id_admin = 122
+WHERE id_produs = 1009;
+
+DELETE FROM InventarProj
+WHERE id_produs = 1010;
+
+--6.
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1010,sequence_1.nextval,30,1);
+
+--cand inserez valori in id_admin am voie sa inserez doar valorile care apar in AdministratorProj
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1010,sequence_1.currval,30,1);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1011,3,51,1);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1012,3,30,1);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1013,3,19,1);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1014,4,51,1);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1015,4,69,1);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1016,5,30,1);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1017,3,30,114);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1018,7,90,115);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1019,4,76,115);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1020,5,45,116);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1021,8,22,117);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1022,9,48,118);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1023,10,83,118);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1024,22,1000,119);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1025,14,35,119);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1026,15,370,119);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1027,14,99,120);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1028,14,77,120);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1029,12,56,121);
+
+INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
+VALUES(1030,4,98,122);
+
+--7.
+INSERT INTO DepozitProj (id_produs,nr_depozit,stoc_initial)
+SELECT id_produs,nr_depozit,cantitate + 50
+FROM InventarProj
+
+--8.
+UPDATE DepozitProj
+set locatie_dep = 'Constanta, Romania'
+WHERE nr_depozit IN (3,4,5,6,7,8,9);
+
+UPDATE DepozitProj
+set locatie_dep = 'Bucuresti, Romania'
+WHERE nr_depozit IN (10,11,12,14,15);
+
+UPDATE DepozitProj
+set locatie_dep = 'Ploiesti, Romania'
+WHERE nr_depozit = 22;
+
+--9. insert cu join
+INSERT INTO ProduseProj (id_produs,denumire_produs,descriere,pret)
+SELECT a.id_produs, b.denumire_produs, b.descriere, b.pret_lista
+FROM Produse b, InventarProj a
+WHERE ROWNUM <= 31;
+
+select round(dbms_random.value(1,1000)) num from dual;
+
+--10.
+INSERT INTO ComenziProj (cod_comanda,id_admin,cantitate_comandata)
+SELECT round(dbms_random.value(1,1000)),id_admin,cantitate*0.1 + 25
+FROM InventarProj
+
+--11.
+UPDATE ComenziProj
+set data_intrare = TO_CHAR(SYSDATE)
+WHERE cod_comanda BETWEEN 1 AND 300;
+
+UPDATE ComenziProj 
+set data_intrare = TO_CHAR(add_months(sysdate,-3))
+WHERE cod_comanda BETWEEN 301 AND 500
+
+UPDATE ComenziProj 
+set data_intrare = TO_CHAR(add_months(sysdate,-5))
+WHERE cod_comanda BETWEEN 501 AND 700
+
+UPDATE ComenziProj 
+set data_intrare = TO_CHAR(add_months(sysdate,-8))
+WHERE cod_comanda BETWEEN 701 AND 999
+
+UPDATE ComenziProj
+set data_expediere = TO_CHAR(add_months(sysdate,1))
+WHERE cod_comanda BETWEEN 200 AND 700
+
+UPDATE ComenziProj
+set data_expediere = TO_CHAR(sysdate + 2*7)
+WHERE cod_comanda BETWEEN 600 AND 800
+
+--12.
+INSERT INTO AgentiProj (id_agent,nr_factura,denumire_produs)
+SELECT 1000+ round(dbms_random.value(100,999)), round(dbms_random.value(20000,29999)),denumire_produs
+FROM ProduseProj
+WHERE ROWNUM<=31;
+
+--13.
+INSERT INTO FacturareProj (id_admin,id_agent,nr_factura)
+SELECT a.id_admin, id_agent, nr_factura
+FROM InventarProj a, AgentiProj
+
+--14.
+UPDATE FacturareProj
+SET suma_plata = round(dbms_random.value(100,100001))
+
+UPDATE FacturareProj
+SET data_scadenta = '31-12-2023'
+
+UPDATE FacturareProj
+SET data_scadenta = '25-08-2023'
+WHERE suma_plata < 20000
+
+UPDATE FacturareProj
+SET data_scadenta = '19-03-2023'
+WHERE suma_plata < 15000
+
+UPDATE ComenziProj
+SET id_produs = round(dbms_random.value(1000,1030))
+WHERE cod_comanda IS NOT NULL;
+
+UPDATE ProduseProj
+set pret = 1000
+WHERE pret IS NULL;
+
+--Cerinte interogari
+
+--1. Sa se afiseze nr facturii, si suma de plata in ordine de la suma cea mai mare la cea mai mica
+
+SELECT nr_factura, suma_plata
+FROM FacturareProj
+ORDER BY suma_plata DESC;
+
+--2. Sa se afiseze administratorii in ordine si cate comenzi au fost date, grupate dupa administratorul care
+--a introdus comanda 
+
+SELECT COUNT(cod_comanda), id_admin
+FROM ComenziProj
+GROUP BY id_admin
+ORDER BY id_admin;
+
+--3.Sa se calculeze valoarea totala a fiecarei comenzi si sa se sorteze descrescator in functie de valoare:
+
+SELECT SUM(a.cantitate_comandata*b.pret) AS valoare_totala , a.cod_comanda
+FROM ComenziProj a, ProduseProj b
+WHERE a.id_produs=b.id_produs
+GROUP by a.cod_comanda
+ORDER BY valoare_totala DESC;
+
+--4. Sa se afiseze numai comenzile care au valoarea cuprinsa intre 5000 si 15000 
+--(conditia va fi mentionata in clauza HAVING deoarece se utilizeaza functia de grup SUM):
+
+SELECT SUM(a.cantitate_comandata*b.pret) AS valoare_totala , a.cod_comanda
+FROM ComenziProj a, ProduseProj b
+WHERE a.id_produs=b.id_produs
+GROUP by a.cod_comanda
+HAVING SUM(a.cantitate_comandata*b.pret) BETWEEN 5000 AND 15000
+ORDER BY valoare_totala DESC;
+
+--5. Sa se afiseze produsele comandate impreuna cu cele care nu se regasesc pe nici o comanda.
+
+SELECT b.id_produs, cod_comanda, cantitate_comandata
+FROM ComenziProj a, ProduseProj b
+WHERE b.id_produs = a.id_produs (+);
+
+--6. Sa se afiseze produsele si sa se calculeze majorarea preturilor pentru produsele
+ --pt 1010 - cu 0.1 
+ --pt 1015 - cu 0.2
+ --pt 1030 - cu 0.3
+SELECT denumire_produs, id_produs,
+(CASE 
+WHEN id_produs= 1010 THEN 1.1
+WHEN id_produs= 1015 THEN 1.2
+WHEN id_produs= 1030 THEN 1.3
+ELSE 1 
+END)*pret as preturi_noi
+FROM ProduseProj;
+
+--7. Sa se selecteze denumirea produselor, valoare totala comandata (SUM(cantitate*pret)) si numarul de comenzi (count(nr_comanda))
+--mai putin cele care au valoarea totala diferita < 10000
+
+SELECT denumire_produs, SUM(cantitate_comandata*pret) AS valoare_totala, count(cod_comanda) AS nr_comenzi
+FROM ProduseProj a, ComenziProj b
+WHERE a.id_produs = b.id_produs
+GROUP BY denumire_produs
+MINUS
+SELECT denumire_produs, SUM(cantitate_comandata*pret) AS valoare_totala, count(cod_comanda) AS nr_comenzi
+FROM ProduseProj a, ComenziProj b
+WHERE a.id_produs = b.id_produs
+GROUP BY denumire_produs
+HAVING SUM(cantitate_comandata*pret) < 10000;
+
+--8. Sa se afiseze produsele care au fost comandate, atat si cele care nu au fost
+
+SELECT cod_comanda, cod_comanda, denumire_produs
+FROM ComenziProj
+FULL OUTER JOIN ProduseProj ON comenziproj.id_produs = produseproj.id_produs
+
+--9. Sa se afiseze facturile cu suma de plata < 15000 si care au suma de plata > 70000
+
+SELECT nr_factura, id_agent, suma_plata
+FROM FacturareProj
+WHERE suma_plata < 15000 
+UNION
+SELECT nr_factura, id_agent, suma_plata
+FROM FacturareProj
+WHERE suma_plata > 70000
+
+--10. Sa se afiseze numarul total de administratori si numarul de angajati care au gestionat comenzi (subcerere).
+
+SELECT (SELECT COUNT(id_admin) from AdministratorProj), (SELECT COUNT(distinct id_admin) from ComenziProj)
+FROM dual;
+
+--11. Sa se afiseze o lista cu initiala administratorului si prenumele, precum si nr_facturii pe care au introdus-o
+
+SELECT (LPAD( nume, 1) || ' ' ||  prenume ) AS nume_admin, nr_factura
+FROM AdministratorProj a, FacturareProj b
+WHERE a.id_admin = b.id_admin;
+
+--12. Sa se afiseze toate comenzile care au data expedierii in februarie
+
+SELECT cod_comanda, id_produs, data_expediere
+FROM ComenziProj
+WHERE data_expediere IS NOT NULL AND EXTRACT(MONTH from TO_DATE(data_expediere,'DD-MM-YYYY')) = 2
+
+--13. Creati o tabela virtuala care sa afiseze datele administratorilor si agentii pe care ii gestioneaza
+
+CREATE OR REPLACE view date_angajati
+AS SELECT id_admin, (nume || ' ' || prenume) AS nume_admin, telefon, email, id_agent
+FROM AdministratorProj, AgentiProj;
+
+--14. Sa se afiseze tabela virtuala
+
+SELECT * FROM date_angajati
+ORDER BY id_admin;
+
+--15. Sa se afiseze cate produse se afla in fiecare depozit
+
+SELECT nr_depozit, COUNT(id_produs)
+FROM DepozitProj
+GROUP BY nr_depozit;
+
+--16. Sa se afiseze in ordine cate produse au fost vandute
+
+SELECT (stoc_initial - cantitate) AS cantitate_vanduta, b.id_produs
+FROM DepozitProj b, InventarProj a
+WHERE a.id_produs = b.id_produs
+ORDER BY b.id_produs;
+
+--17. Sa se afiseze cate produse se afla in depozitele de la bucuresti
+
+SELECT COUNT(id_produs)
+FROM DepozitProj
+WHERE upper(locatie_dep) LIKE '%BUCURESTI%';
+
+--18. Sa se afiseze suma preturilor produselor pentru fiecare locatie a depozitelor folosind ROLLUP
+
+SELECT SUM(pret), locatie_dep,
+GROUPING(locatie_dep) AS Subtotal_locatie
+FROM ProduseProj a, DepozitProj b
+GROUP BY ROLLUP(locatie_dep);
+
+--19. Sa se afiseze majorarea sumei de plata ale facturilor dupa adaugarea unor taxe:
+--daca id_agent = 1238 atunci se majoreaza cu 0.05
+--daca id_agent = 1550 atunci se majoreaza cu 0.1
+
+SELECT nr_factura, suma_plata, DECODE(id_agent, 1238 , 1.05, 2550, 1.1, 1)*suma_plata AS majorare_suma_plata
+FROM FacturareProj;
+
+--20. Sa se afiseze noua cantitate dupa ce s-au comandat cate 50 de produse, 
+--cu id_produs = 1024, 1026, 1030
+
+SELECT cantitate - 50, id_produs
+FROM InventarProj
+WHERE id_produs IN (1024, 1026, 1030);
