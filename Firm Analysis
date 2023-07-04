@@ -1,0 +1,118 @@
+setwd("C:/Users/Cristina/Desktop/New folder")
+date_actiuni<-read.csv("preturi.csv", header=TRUE, sep=",")
+rentab<-read.csv("rentabil.csv", header=TRUE, sep=",")
+
+date_actiuni_comune<-data.frame(date_actiuni $Date, date_actiuni $Pret_Tesla, date_actiuni $Pret_Toyota, date_actiuni $Pret_SP500)
+fix(date_actiuni_comune)
+
+attach(date_actiuni_comune)
+
+rentabilitati<-data.frame(rentab $Data, rentab $Rentab_Tesla, rentab $Rentab_Toyota, rentab $Rentab_SP500)
+fix(rentabilitati)
+
+attach(rentabilitati)
+
+#statistici descriptive
+#nu afisati date
+summary(date_actiuni_comune[-1])
+
+summary(rentabilitati[-1])
+
+#ab standard
+?sd
+sd_pret_tesla<-sd(date_actiuni$Pret_Tesla)
+sd_pret_toyota<-sd(date_actiuni$Pret_Toyota)
+sd_pret_sp<-sd(date_actiuni$Pret_SP500)
+
+View(sd_pret_tesla)
+
+sd_rb_tesla<-sd(rentab $Rentab_Tesla)
+sd_rb_toyota<-sd(rentab $Rentab_Toyota)
+sd_rb_sp<-sd(rentab $Rentab_SP500)
+
+#pas1
+par(mfrow=c(2,2)) #ne ajuta sa punem cele 2 grafice impreuna
+
+hist(date_actiuni$Pret_Tesla, main="Histograma Pret Tesla", col="maroon4",xlab="Pret_Tesla")
+
+#usor asimetrica spre stanga
+
+hist(date_actiuni$Pret_SP500, main="Histograma indicelui SP500", col="blue",xlab="Pret_SP500")
+
+#asimetrie de dreapta pentru indicele SP
+
+hist(date_actiuni$Pret_Toyota, main="Histograma Pret Toyota", col="green",xlab="Pret_Toyota")
+
+#asimetrie de stanga pentru toyota
+
+#pentru a calcula coeficientul de variatie, vom calcula media(am aflat deja deviatia standard)
+
+medie_p_tesla<-mean(date_actiuni$Pret_Tesla)
+medie_p_toyota<-mean(date_actiuni$Pret_Toyota)
+medie_p_sp<-mean(date_actiuni$Pret_SP500)
+
+#coef de var(cv)
+coef_variatie_pret_tsl<-sd_pret_tesla/medie_p_tesla
+coef_variatie_pret_toy<-sd_pret_toyota/medie_p_toyota
+coef_variatie_pret_sp<-sd_pret_sp/medie_p_sp
+
+coef_variatie_pret_tsl
+#skewness
+?skewness
+library(moments)
+sk_p_tesla<-skewness(date_actiuni$Pret_Tesla)
+#este usor asimetrica deoarece skewness este intre -0.3 si 0.3
+sk_p_toyota<-skewness(date_actiuni$Pret_Toyota)
+#distributia datelor prezinta o asimetrie mare
+sk_p_sp<-skewness(date_actiuni$Pret_SP500)
+#este relativ asimetrica, fiind doar putin peste 0.3
+
+#kurtosis
+ku__p_tesla<-kurtosis(date_actiuni$Pret_Tesla)
+ku__p_toyota<-kurtosis(date_actiuni$Pret_Toyota)
+ku__p_sp<-kurtosis(date_actiuni$Pret_SP500)
+#Observam ca distributia celor 3 este platikurtica. Aceste tipuri de distributii au mai putine valori aberante.
+#Distributiile platykurtice au demonstrat mai multa stabilitate decat alte curbe. Acest lucru se traduce printr-un nivel de risc mic.
+
+
+?cor #corelatie
+
+cor(date_actiuni[-1])
+cor(rentab[-1])
+
+matr_corelatie<- cor(date_actiuni[-1])
+matr_corelatie
+
+matr_corel_rentab<-cor(rentab[-1])
+matr_corel_rentab
+
+##correlative grafică a matricei de corelatie.
+##Pt asta avem nevoie de corrplot
+library(corrplot)
+#avem nevoie
+corrplot(matr_corelatie)
+corrplot(matr_corelatie, method=c("number"))
+corrplot(matr_corel_rentab, method=c("number"))
+#matrice min/max
+
+matricemaxmin<-matrix(nrow=2,ncol=4,
+                      dimnames=list(c("Tesla","Toyota"),
+                                    c("DATA_MAX","DATA_MIN","MAX","MIN")
+                      )
+)
+matricemaxmin[1,]=c(date_actiuni$Date[which.max(date_actiuni$Pret_Tesla)],date_actiuni$Date[which.min(date_actiuni$Pret_Tesla)],max(date_actiuni$Pret_Tesla),min(date_actiuni$Pret_Tesla))
+matricemaxmin[2,]=c(date_actiuni$Date[which.max(date_actiuni$Pret_Toyota)],date_actiuni$Date[which.min(date_actiuni$Pret_Toyota)],max(date_actiuni$Pret_Toyota),min(date_actiuni$Pret_Toyota))
+
+View(matricemaxmin)
+
+#outliers boxplot
+par(mfrow=c(1,3))
+p<-boxplot(date_actiuni$Pret_Tesla)$out
+p<-boxplot(date_actiuni$Pret_Toyota)$out
+p<-boxplot(date_actiuni$Pret_SP500)$out
+#observam ca distributiile noastre nu au outliers.
+
+par(mfrow=c(1,3))
+p<-boxplot(rentab$Rentab_Tesla)$out
+p<-boxplot(rentab$Rentab_Toyota)$out
+p<-boxplot(rentab$Rentab_SP500)$out
