@@ -1,11 +1,8 @@
 install.packages("fpp3")
 install.packages("readxl")
-# Importarea librariilor 
 install.packages("tsibble")
-library(tsibble) #furnizeaza functionalitati avansate pentru manipularea, vizualizarea si analiza acestor serii de timp
-library(readxl) #permite citirea fisierelor Excel direct in mediu R
-# Librariile ffp fac parte dintr-un pachet mai mare numit "Forecasting: Principles and Practice"
-# Acest pachet contine un set bogat de functii si metode pentru modelarea, evaluarea si realizarea de prognoze in R
+library(tsibble)
+library(readxl)
 library(fpp3)
 library(fpp2)
 
@@ -33,7 +30,6 @@ windows()
 autoplot(d_i) +
   labs(title = "Plot Rata Inflatiei",
        y = "Rata inflatiei trimestriala")
-#datele au sezonalitate deoarece au aceste cresteri si descresteri
 
 #grafic de sezonalitate
 
@@ -46,7 +42,7 @@ ggsubseriesplot(d_i) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme_bw()
 
-#graficul prezinta asadar sezonalitate
+#graficul prezinta sezonalitate
 
 install.packages("seasonal")
 library(seasonal)
@@ -172,7 +168,7 @@ summary(adf_ur) #
 
 # Testarea stationaritatii prin KPSS pentru seria nediferentiata
 training %>% ur.kpss() %>% summary() # valoarea testului 1.30002 > toate valorile critice
-# seria este nestationara pt ca test cristic> ca toate valorile cristice accept ip alternativa
+# seria este nestationara pt ca testul critic ">" ca toate valorile cristice accept ip alternativa
 
 
 # Testarea stationaritatii prin Philips-Perron pentru seria nediferentiata
@@ -197,19 +193,19 @@ autoplot(training) +
 adf_ur <- diff(training) %>%
   ur.df(., type='trend', selectlags=c("AIC"))
 
-summary(adf_ur) # testul statistic> val critice
+summary(adf_ur) # testul statistic ">" val critice
 #stationara pe toate intervalele
 
 adf_ur <- diff(training) %>%
   ur.df(., type='drift', selectlags=c("AIC"))
 
-summary(adf_ur) # testul statistic> val critice
+summary(adf_ur) # testul statistic ">" val critice
 #stationara pe toate intervalele
 
 adf_ur <- diff(training) %>%
   ur.df(., type='none', selectlags=c("AIC"))
 
-summary(adf_ur) # testul statistic> val critice
+summary(adf_ur) # testul statistic > val critice
 #stationara pe toate intervalele
 
 # Testarea stationaritatii prin KPSS pentru seria diferentiata
