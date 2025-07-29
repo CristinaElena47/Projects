@@ -14,8 +14,6 @@ id_admin number(7),
 constraint f_admin1 FOREIGN KEY (id_admin) REFERENCES AdministratorProj (id_admin)
 );
 
---adminul din  inventar este cel care a introdus codul in tabela
-
 CREATE TABLE DepozitProj
 (nr_depozit number(5) NOT NULL,
 id_produs number(8),
@@ -58,11 +56,6 @@ constraint f_admin3 FOREIGN KEY (id_agent) REFERENCES AgentiProj (id_agent),
 suma_plata number(8),
 data_scadenta varchar2(30)
 );
-
---10 administratori
---20 agenti
---produse iau din produse(laptopuri si televizoare) sau ma gandesc (feluri de paine)
---etc
 
 --1.
 ALTER TABLE AdministratorProj ADD email varchar2(40);
@@ -196,8 +189,6 @@ WHERE id_produs = 1010;
 --6.
 INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
 VALUES(1010,sequence_1.nextval,30,1);
-
---cand inserez valori in id_admin am voie sa inserez doar valorile care apar in AdministratorProj
 
 INSERT INTO InventarProj (id_produs,nr_depozit,cantitate,id_admin)
 VALUES(1010,sequence_1.currval,30,1);
